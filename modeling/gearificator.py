@@ -1,7 +1,8 @@
 # python script made by Robin "Ziv" Courtoise
 # contact at robincourtoise@gmail.com
 #            ------------------------
-# This script helps in creating very simple interlocking gears/cogs.
+# This script helps in creating interlocking gears/cogs, all 
+# gears with the same size value will work together.
 
 import maya.cmds as cmds
 
@@ -10,14 +11,17 @@ class Gearificator:
         self.ui()
 
     def ui(self):
-        self.window = cmds.window( title="Gearificator", iconName='Gearificator', widthHeight=(200, 150) )
+        self.window = cmds.window( title="Gearificator", iconName='Gearificator', widthHeight=(200, 200) )
         cmds.columnLayout( adjustableColumn=True )
 
         self.teeth_number_label = cmds.text(label = 'Teeth Number', ann = 'Larger number of teeth leads to larger gears.')
-        self.teeth_number_field = cmds.intField(min=3, max=50, value=10)
+        self.teeth_number_field = cmds.intField(min=3, max=50, value=20)
 
         self.teeth_size_label = cmds.text(label = 'Size', ann = 'All gears with the same size value will work together.')
         self.teeth_size_field = cmds.floatField(min=0.1, max=5, value=1)
+        
+        self.teeth_depth_label = cmds.text(label = 'Teeth Depth',ann = 'How long the theeth are')
+        self.teeth_depth_field = cmds.floatField(min=0.01, max=2, value=1)
 
         self.gear_thickness_label = cmds.text(label = 'Gear Thickness', ann = 'Thickness of the entire gear.')
         self.gear_thickness_field = cmds.floatField(min=0.1, max=5, value=1)
@@ -32,9 +36,10 @@ class Gearificator:
         teeth_number = cmds.intField(self.teeth_number_field, q = True, v = True)
         teeth_size = cmds.floatField(self.teeth_size_field, q = True, v = True)
         gear_thickness = cmds.floatField(self.gear_thickness_field, q = True, v = True)
+        teeth_depth = cmds.floatField(self.teeth_depth_field, q = True, v = True)
 
         s = 2*teeth_number if teeth_number > 2 else 6
-        r = (teeth_size*teeth_number)*0.1
+        r = (teeth_size*teeth_number)*0.01
 
         gear = cmds.polyDisc(sides = s, subdivisionMode = 2, subdivisions = 1, radius = r)
         
@@ -46,10 +51,10 @@ class Gearificator:
             cmds.select(f'{poly}.e[{edgenum}]',add = True)    
             edgenum += 4
         
-        cmds.polyExtrudeEdge(offset = 0.25*teeth_size)
+        cmds.polyExtrudeEdge(offset = teeth_depth*0.055*teeth_size)
         cmds.select(gear)
         cmds.polySmooth(mth = 1,ro = 0.5)
-        cmds.polyExtrudeFacet(thickness = 0.2*gear_thickness)
+        cmds.polyExtrudeFacet(thickness = 0.1*gear_thickness)
         cmds.select(gear)
 
 create_gear = Gearificator()
